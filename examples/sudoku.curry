@@ -23,7 +23,7 @@ sudoku m =
  labeling [FirstFailConstrained] (concat m)
  where
   -- translate a matrix into a list of small 3x3 squares
-  squares :: [[a]] -> [[a]]
+  squares :: Eq a => [[a]] -> [[a]]
   squares [] = []
   squares (l1:l2:l3:ls) = group3Rows [l1,l2,l3] ++ squares ls
   

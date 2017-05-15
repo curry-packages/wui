@@ -1,16 +1,16 @@
 {
     "name": "wui",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "author": "Michael Hanus <mh@informatik.uni-kiel.de>",
     "synopsis": "Libraries to support the type-oriented construction of web user interfaces",
     "category": [ "User Interface", "Web" ],
     "dependencies": {
-        "javascript": ">= 1.0.0"
+        "javascript": ">= 2.0.0"
     },
     "exportedModules": [ "WUI", "WUIjs" ],
     "compilerCompatibility": {
-        "pakcs": ">= 1.14.0, < 2.0.0",
-        "kics2": ">= 0.5.0,  < 2.0.0"
+        "pakcs": ">= 2.0.0",
+        "kics2": ">= 2.0.0"
     },
     "license": "BSD-3-Clause",
     "licenseFile": "LICENSE",

@@ -21,7 +21,7 @@ import WUIjs
 import Time(validDate)
 
 -- a form that just shows its argument:
-resultForm :: a -> IO HtmlForm
+resultForm :: Show a => a -> IO HtmlForm
 resultForm v = return $ form "Result" [htxt ("Modified value: "++show v)]
 
 -- a date WUI:

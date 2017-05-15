@@ -227,12 +227,10 @@ transformWSpec (a2b,b2a) (WuiSpec wparamsa showhtmla readvaluea) =
              in (maybe Nothing (Just . a2b) mba,
                  setNoJSAccessInHtmlState errstate))
  where
-  transParamA2B :: WuiParams a -> WuiParams b
   transParamA2B (render,errmsg,legal,_) =
     -- since we can't transform JS check code for type a into b, we ignore it:
     (render, errmsg, legal . b2a, Nothing)
 
-  transParamB2A :: WuiParams b -> WuiParams a
   transParamB2A (render,errmsg,legal,_) =
     (render, errmsg, legal . a2b, jsConditionOf wparamsa)
 
@@ -422,7 +420,7 @@ wTextArea dims =
 --- The current value should be contained in the value list and is preselected.
 --- The first argument is a mapping from values into strings to be shown
 --- in the selection widget.
-wSelect :: (a->String) -> [a] -> WuiSpec a
+wSelect :: Eq a => (a->String) -> [a] -> WuiSpec a
 wSelect showelem selset =
   WuiSpec (head,"?",const True, Nothing)
           (\ (render,errmsg,_,jsck) v -> selWidget errmsg jsck render v)
@@ -451,7 +449,7 @@ wSelect showelem selset =
 --- in the selection widget.
 --- The second argument maps value into the corresponding JavaScript
 --- representation.
-wSelectJS :: (a->String) -> (a->JSExp) -> [a] -> WuiSpec a
+wSelectJS :: Eq a => (a->String) -> (a->JSExp) -> [a] -> WuiSpec a
 wSelectJS showelem showjselem selset =
   WuiSpec (head,"?",const True, Nothing)
           (\ (render,errmsg,_,jsck) v -> selWidget errmsg jsck render v)
@@ -525,7 +523,7 @@ wCheckBool hexps =
 --- and are preselected.
 --- The first argument is a mapping from values into HTML expressions
 --- that are shown for each item after the check box.
-wMultiCheckSelect :: (a->[HtmlExp]) -> [a] -> WuiSpec [a]
+wMultiCheckSelect :: Eq a => (a->[HtmlExp]) -> [a] -> WuiSpec [a]
 wMultiCheckSelect showelem selset =
   WuiSpec (renderTuple, tupleError, const True, Nothing)
           (\ (render,errmsg,_,jsck) vs -> checkWidget errmsg jsck render vs)
@@ -550,7 +548,7 @@ newVars = unknown : newVars
 --- The current value should be contained in the value list and is preselected.
 --- The first argument is a mapping from values into HTML expressions
 --- that are shown for each item after the radio button.
-wRadioSelect :: (a->[HtmlExp]) -> [a] -> WuiSpec a
+wRadioSelect :: Eq a => (a->[HtmlExp]) -> [a] -> WuiSpec a
 wRadioSelect showelem selset =
   WuiSpec (renderTuple, tupleError, const True, Nothing)
           (\ (render,errmsg,_,jsck) v -> radioWidget errmsg jsck render v)
@@ -699,7 +697,7 @@ jsCheckCallFromState wstate (Just jsck) =
 --- tuple provided that the components are already rendered as tuples,
 --- i.e., by the rendering function <code>renderTuple</code>.
 --- This combinator is useful to define combinators for large tuples.
-wJoinTuple :: WuiSpec a -> WuiSpec b -> WuiSpec (a,b)
+wJoinTuple :: (Eq a, Eq b) => WuiSpec a -> WuiSpec b -> WuiSpec (a,b)
 wJoinTuple (WuiSpec wparama showa reada) (WuiSpec wparamb showb readb) =
   WuiSpec (renderTuple, tupleError, const True, Nothing) showc readc
  where
@@ -728,14 +726,14 @@ wJoinTuple (WuiSpec wparama showa reada) (WuiSpec wparamb showb readb) =
 
 
 --- WUI combinator for pairs.
-wPair :: WuiSpec a -> WuiSpec b -> WuiSpec (a,b)
+wPair :: (Eq a, Eq b) => WuiSpec a -> WuiSpec b -> WuiSpec (a,b)
 wPair = wCons2JS (Just (jsTupleCons 2)) (\a b -> (a,b))
 
 --- WUI combinator for constructors of arity 2.
 --- The first argument is the binary constructor.
 --- The second and third arguments are the WUI specifications
 --- for the argument types.
-wCons2 :: (a->b->c) -> WuiSpec a -> WuiSpec b -> WuiSpec c
+wCons2 :: (Eq a, Eq b) => (a->b->c) -> WuiSpec a -> WuiSpec b -> WuiSpec c
 wCons2 = wCons2JS Nothing
 
 wCons2JS jscons cons
@@ -757,13 +755,13 @@ wCons2JS jscons cons
             (cons (fromJust rav) (fromJust rbv))
 
 --- WUI combinator for triples.
-wTriple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec (a,b,c)
+wTriple :: (Eq a, Eq b, Eq c) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec (a,b,c)
 wTriple = wCons3JS (Just (jsTupleCons 3)) (\a b c -> (a,b,c))
 
 --- WUI combinator for constructors of arity 3.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons3 :: (a->b->c->d) -> WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d
+wCons3 :: (Eq a, Eq b, Eq c) => (a->b->c->d) -> WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d
 wCons3 = wCons3JS Nothing
 
 wCons3JS jscons cons
@@ -789,13 +787,13 @@ wCons3JS jscons cons
 
 
 --- WUI combinator for tuples of arity 4.
-w4Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec (a,b,c,d)
+w4Tuple :: (Eq a, Eq b, Eq c, Eq d) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec (a,b,c,d)
 w4Tuple = wCons4JS (Just (jsTupleCons 4)) (\a b c d -> (a,b,c,d))
 
 --- WUI combinator for constructors of arity 4.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons4  :: (a->b->c->d->e) ->
+wCons4  :: (Eq a, Eq b, Eq c, Eq d) => (a->b->c->d->e) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e
 wCons4 = wCons4JS Nothing
 
@@ -825,14 +823,14 @@ wCons4JS jscons cons
 
 
 --- WUI combinator for tuples of arity 5.
-w5Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w5Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
            WuiSpec (a,b,c,d,e)
 w5Tuple = wCons5JS (Just (jsTupleCons 5)) (\a b c d e -> (a,b,c,d,e))
 
 --- WUI combinator for constructors of arity 5.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons5  :: (a->b->c->d->e->f) ->
+wCons5  :: (Eq a, Eq b, Eq c, Eq d, Eq e) => (a->b->c->d->e->f) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f
 wCons5 = wCons5JS Nothing
@@ -868,14 +866,14 @@ wCons5JS jscons cons
 
 
 --- WUI combinator for tuples of arity 6.
-w6Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w6Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
            WuiSpec f -> WuiSpec (a,b,c,d,e,f)
 w6Tuple = wCons6JS (Just (jsTupleCons 6)) (\a b c d e f -> (a,b,c,d,e,f))
 
 --- WUI combinator for constructors of arity 6.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons6  :: (a->b->c->d->e->f->g) ->
+wCons6  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f) => (a->b->c->d->e->f->g) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g
 wCons6 = wCons6JS Nothing
@@ -913,14 +911,14 @@ wCons6JS jscons cons
 
 
 --- WUI combinator for tuples of arity 7.
-w7Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w7Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
            WuiSpec f -> WuiSpec g -> WuiSpec (a,b,c,d,e,f,g)
 w7Tuple = wCons7JS (Just (jsTupleCons 7)) (\a b c d e f g -> (a,b,c,d,e,f,g))
 
 --- WUI combinator for constructors of arity 7.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons7  :: (a->b->c->d->e->f->g->h) ->
+wCons7  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g) => (a->b->c->d->e->f->g->h) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h
 wCons7 = wCons7JS Nothing
@@ -961,7 +959,7 @@ wCons7JS jscons cons
 
 
 --- WUI combinator for tuples of arity 8.
-w8Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w8Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
            WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec (a,b,c,d,e,f,g,h)
 w8Tuple = wCons8JS (Just (jsTupleCons 8))
                    (\a b c d e f g h -> (a,b,c,d,e,f,g,h))
@@ -969,7 +967,7 @@ w8Tuple = wCons8JS (Just (jsTupleCons 8))
 --- WUI combinator for constructors of arity 8.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons8  :: (a->b->c->d->e->f->g->h->i) ->
+wCons8  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h) => (a->b->c->d->e->f->g->h->i) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i
 wCons8 = wCons8JS Nothing
@@ -1012,7 +1010,7 @@ wCons8JS jscons cons
 
 
 --- WUI combinator for tuples of arity 9.
-w9Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w9Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
            WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i ->
            WuiSpec (a,b,c,d,e,f,g,h,i)
 w9Tuple = wCons9JS (Just (jsTupleCons 9))
@@ -1021,7 +1019,7 @@ w9Tuple = wCons9JS (Just (jsTupleCons 9))
 --- WUI combinator for constructors of arity 9.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons9  :: (a->b->c->d->e->f->g->h->i->j) ->
+wCons9  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i) => (a->b->c->d->e->f->g->h->i->j) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j
 wCons9 = wCons9JS Nothing
@@ -1070,7 +1068,7 @@ wCons9JS jscons cons
 
 
 --- WUI combinator for tuples of arity 10.
-w10Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w10Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
             WuiSpec (a,b,c,d,e,f,g,h,i,j)
 w10Tuple = wCons10JS (Just (jsTupleCons 10))
@@ -1079,7 +1077,7 @@ w10Tuple = wCons10JS (Just (jsTupleCons 10))
 --- WUI combinator for constructors of arity 10.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons10  :: (a->b->c->d->e->f->g->h->i->j->k) ->
+wCons10  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j) => (a->b->c->d->e->f->g->h->i->j->k) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
             WuiSpec k
@@ -1131,7 +1129,7 @@ wCons10JS jscons cons
 
 
 --- WUI combinator for tuples of arity 11.
-w11Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w11Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
             WuiSpec k -> WuiSpec (a,b,c,d,e,f,g,h,i,j,k)
 w11Tuple = wCons11JS (Just (jsTupleCons 11))
@@ -1140,7 +1138,7 @@ w11Tuple = wCons11JS (Just (jsTupleCons 11))
 --- WUI combinator for constructors of arity 11.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons11  :: (a->b->c->d->e->f->g->h->i->j->k->l) ->
+wCons11  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k) => (a->b->c->d->e->f->g->h->i->j->k->l) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
             WuiSpec k -> WuiSpec l
@@ -1195,7 +1193,7 @@ wCons11JS jscons cons
 
 
 --- WUI combinator for tuples of arity 12.
-w12Tuple :: WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w12Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k, Eq l) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
             WuiSpec k -> WuiSpec l -> WuiSpec (a,b,c,d,e,f,g,h,i,j,k,l)
 w12Tuple = wCons12JS (Just (jsTupleCons 12))
@@ -1204,7 +1202,7 @@ w12Tuple = wCons12JS (Just (jsTupleCons 12))
 --- WUI combinator for constructors of arity 12.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons12  :: (a->b->c->d->e->f->g->h->i->j->k->l->m) ->
+wCons12  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k, Eq l) => (a->b->c->d->e->f->g->h->i->j->k->l->m) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
             WuiSpec k -> WuiSpec l -> WuiSpec m
@@ -1262,7 +1260,7 @@ wCons12JS jscons cons
 
 --- WUI combinator for list structures where the list elements are vertically
 --- aligned in a table.
-wList :: WuiSpec a -> WuiSpec [a]
+wList :: Eq a => WuiSpec a -> WuiSpec [a]
 wList (WuiSpec rendera showa reada) = WuiSpec
   (renderList,"Illegal list:",const True, Nothing)
   (\wparams vas ->
@@ -1281,7 +1279,7 @@ wList (WuiSpec rendera showa reada) = WuiSpec
   jsListComb args = JSFCall "array2list" [JSFCall "new Array" args]
 
 --- Add headings to a standard WUI for list structures:
-wListWithHeadings :: [String] -> WuiSpec a -> WuiSpec [a]
+wListWithHeadings :: Eq a => [String] -> WuiSpec a -> WuiSpec [a]
 wListWithHeadings headings wspec =
   wList wspec `withRendering` renderHeadings
  where
@@ -1289,13 +1287,13 @@ wListWithHeadings headings wspec =
 
 --- WUI combinator for list structures where the list elements are horizontally
 --- aligned in a table.
-wHList :: WuiSpec a -> WuiSpec [a]
+wHList :: Eq a => WuiSpec a -> WuiSpec [a]
 wHList wspec = wList wspec `withRendering` renderTuple
 
 
 --- WUI for matrices, i.e., list of list of elements
 --- visualized as a matrix.
-wMatrix :: WuiSpec a -> WuiSpec [[a]]
+wMatrix :: Eq a => WuiSpec a -> WuiSpec [[a]]
 wMatrix wspec = wList (wHList wspec)
 
 
@@ -1306,7 +1304,7 @@ wMatrix wspec = wList (wHList wspec)
 --- @param wspecb - a WUI specification for Boolean values
 --- @param wspeca - a WUI specification for the type of potential values
 --- @param def - a default value that is used if the current value is Nothing
-wMaybe :: WuiSpec Bool -> WuiSpec a -> a -> WuiSpec (Maybe a)
+wMaybe :: Eq a => WuiSpec Bool -> WuiSpec a -> a -> WuiSpec (Maybe a)
 wMaybe (WuiSpec paramb showb readb) (WuiSpec parama showa reada) def =
  WuiSpec
    (renderTuple, tupleError, const True, Nothing)
@@ -1334,7 +1332,7 @@ wMaybe (WuiSpec paramb showb readb) (WuiSpec parama showa reada) def =
 --- @param wspec - a WUI specification for the type of potential values
 --- @param hexps - a list of HTML expressions shown after the check box
 --- @param def - a default value if the current value is Nothing
-wCheckMaybe :: WuiSpec a -> [HtmlExp] -> a -> WuiSpec (Maybe a)
+wCheckMaybe :: Eq a => WuiSpec a -> [HtmlExp] -> a -> WuiSpec (Maybe a)
 wCheckMaybe wspec exps = wMaybe (wCheckBool exps) wspec
 
 --- A WUI for Maybe values where radio buttons are used to switch
@@ -1344,7 +1342,7 @@ wCheckMaybe wspec exps = wMaybe (wCheckBool exps) wspec
 --- @param hexps - a list of HTML expressions shown after the Nothing button
 --- @param hexps - a list of HTML expressions shown after the Just button
 --- @param def - a default value if the current value is Nothing
-wRadioMaybe :: WuiSpec a -> [HtmlExp] -> [HtmlExp] -> a -> WuiSpec (Maybe a)
+wRadioMaybe :: Eq a => WuiSpec a -> [HtmlExp] -> [HtmlExp] -> a -> WuiSpec (Maybe a)
 wRadioMaybe wspec hnothing hjust = wMaybe wBool wspec
  where
   wBool = wRadioSelect (\b->if b then hjust else hnothing) [False,True]
@@ -1352,7 +1350,7 @@ wRadioMaybe wspec hnothing hjust = wMaybe wBool wspec
 --- WUI for union types.
 --- Here we provide only the implementation for Either types
 --- since other types with more alternatives can be easily reduced to this case.
-wEither :: WuiSpec a -> WuiSpec b -> WuiSpec (Either a b)
+wEither :: (Eq a, Eq b) => WuiSpec a -> WuiSpec b -> WuiSpec (Either a b)
 wEither (WuiSpec rendera showa reada) (WuiSpec renderb showb readb) =
  WuiSpec (head, "?", const True, Nothing) showEither readEither
  where
@@ -1383,11 +1381,13 @@ wEither (WuiSpec rendera showa reada) (WuiSpec renderb showb readb) =
 --- A simple tree structure to demonstrate the construction of WUIs for tree
 --- types.
 data WTree a = WLeaf a | WNode [WTree a]
+ deriving Eq
+
 
 --- WUI for tree types.
 --- The rendering specifies the rendering of inner nodes.
 --- Leaves are shown with their default rendering.
-wTree :: WuiSpec a -> WuiSpec (WTree a)
+wTree :: Eq a => WuiSpec a -> WuiSpec (WTree a)
 wTree (WuiSpec rendera showa reada) =
  WuiSpec (renderList, "Illegal tree:", const True, Nothing) showTree readTree
  where
