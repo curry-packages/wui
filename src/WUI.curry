@@ -11,6 +11,8 @@
 --- @category web
 ------------------------------------------------------------------------------
 
+{-# OPTIONS_CYMAKE -Wno-incomplete-patterns #-}
+
 module WUI(--WuiState,cgiRef2state,state2cgiRef,value2state,state2value,
            --states2state,state2states,altstate2state,state2altstate,
            Rendering,WuiSpec,
@@ -91,10 +93,13 @@ type Rendering = [HtmlExp] -> HtmlExp
 --- * a condition to specify legal input values
 type WuiParams a = (Rendering, String, a->Bool)
 
+renderOf :: WuiParams a -> Rendering
 renderOf (render,_,_) = render
 
+errorOf :: WuiParams a -> String
 errorOf (_,err,_) = err
 
+conditionOf :: WuiParams a -> (a -> Bool)
 conditionOf (_,_,c) = c
 
 ------------------------------------------------------------------------------
@@ -365,6 +370,7 @@ wMultiCheckSelect showelem selset =
      in (render (map showItem numsetitems),
          states2state (map cgiRef2state refs))
 
+newVars :: [_]
 newVars = unknown : newVars
 
 --- A widget to select a value from a given list of values via a radio button.
@@ -923,6 +929,7 @@ unRenderTuple hexp =
     map (\ (HtmlStruct "td" _ [e]) -> e) tds
 
 -- Standard error message for tuples:
+tupleError :: String
 tupleError = "Illegal combination:"
 
 --- Standard rendering of tuples with a tag for each element.
@@ -946,6 +953,7 @@ renderError render errmsg hexps =
   table [[[boldRedTxt errmsg]], [[render hexps]]] 
                   `addAttr` ("bgcolor","#ffff00") -- background color: yellow
 
+boldRedTxt :: String -> HtmlExp
 boldRedTxt s = HtmlStruct "font" [("color","#ff0000")] [bold [htxt s]]
 
 
@@ -956,12 +964,14 @@ mergeTableOfTable (HtmlStruct "table" attrs rows) =
               then map mergeRowWithSingleTableData rows
               else rows )
 
+isRowWithSingleTableData :: HtmlExp -> Bool
 isRowWithSingleTableData row = case row of
    (HtmlStruct "tr" []
         [HtmlStruct "td" []
             [HtmlStruct "table" _ [HtmlStruct "tr" _ _]]]) -> True
    _ -> False
 
+mergeRowWithSingleTableData :: HtmlExp -> HtmlExp
 mergeRowWithSingleTableData 
   (HtmlStruct "tr" [] [HtmlStruct "td" [] [HtmlStruct "table" _ [row]]]) = row
 

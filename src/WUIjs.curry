@@ -14,6 +14,8 @@
 --- @category web
 ------------------------------------------------------------------------------
 
+{-# OPTIONS_CYMAKE -Wno-incomplete-patterns #-}
+
 module WUIjs(--WuiState,cgiRef2state,state2cgiRef,value2state,state2value,
            --states2state,state2states,altstate2state,state2altstate,
            Rendering,WuiSpec,
@@ -140,12 +142,16 @@ type Rendering = [HtmlExp] -> HtmlExp
 --- * optionally a JavaScript function name implementing the condition
 type WuiParams a = (Rendering, String, a->Bool, Maybe String)
 
+renderOf :: WuiParams a -> Rendering
 renderOf (render,_,_,_) = render
 
+errorOf :: WuiParams a -> String
 errorOf (_,err,_,_) = err
 
+conditionOf :: WuiParams a -> (a -> Bool)
 conditionOf (_,_,c,_) = c
 
+jsConditionOf :: WuiParams a -> Maybe String
 jsConditionOf (_,_,_,jsc) = jsc
 
 ------------------------------------------------------------------------------
@@ -541,6 +547,7 @@ wMultiCheckSelect showelem selset =
      in (render (map showItem numsetitems), Nothing,
          states2state (map (\cref->cgiRef2state cref Nothing) refs) Nothing)
 
+newVars :: [_]
 newVars = unknown : newVars
 
 
@@ -1452,6 +1459,7 @@ unRenderTuple hexp =
     map (\ (HtmlStruct "td" _ [e]) -> e) tds
 
 -- Standard error message for tuples:
+tupleError :: String
 tupleError = "Illegal combination:"
 
 --- Standard rendering of tuples with a tag for each element.
@@ -1474,12 +1482,14 @@ mergeTableOfTable (HtmlStruct "table" attrs rows) =
               then map mergeRowWithSingleTableData rows
               else rows )
 
+isRowWithSingleTableData :: HtmlExp -> Bool
 isRowWithSingleTableData row = case row of
    (HtmlStruct "tr" []
         [HtmlStruct "td" []
             [HtmlStruct "table" _ [HtmlStruct "tr" _ _]]]) -> True
    _ -> False
 
+mergeRowWithSingleTableData :: HtmlExp -> HtmlExp
 mergeRowWithSingleTableData 
   (HtmlStruct "tr" [] [HtmlStruct "td" [] [HtmlStruct "table" _ [row]]]) = row
 
@@ -1557,6 +1567,7 @@ showAndReadWUI wspec store errorform (htmledits,jsfs,readenv) =
 --------------------------------------------------------------------------
 -- The style sheet used in WUIs:
 
+wuiStyleSheet :: HtmlExp
 wuiStyleSheet = styleSheet $
   "\n.wuihide { display: none; }\n" ++
   ".wuinohide { display: inline; color: red; font-weight: bold ; background-color: yellow; }\n" ++
