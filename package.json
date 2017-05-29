@@ -21,7 +21,7 @@
         },
         { "src-dir": "examples",
           "options": "-v",
-          "modules":  [ "Persons", "sudoku" ]
+          "modules":  [ "Persons" ]
         }
     ],
     "source": {
