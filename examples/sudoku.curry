@@ -1,6 +1,8 @@
 -----------------------------------------------------------------------------
 --- Solving Su Doku puzzles in Curry with a web-based interface
 ---
+--- Note that this example requires the CLPFD solver provided with PAKCS.
+---
 --- @author Michael Hanus
 --- @version May 2017
 -----------------------------------------------------------------------------
