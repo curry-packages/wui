@@ -39,7 +39,7 @@ module WUI(--WuiState,cgiRef2state,state2cgiRef,value2state,state2value,
 
 import Char(isDigit,isSpace)
 import FunctionInversion (invf1)
-import HTML
+import HTML.Base
 import List(elemIndex)
 import Maybe
 import Read(readNat)

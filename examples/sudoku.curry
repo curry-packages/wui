@@ -9,7 +9,7 @@
 
 import AllSolutions (getOneSolution)
 import CLPFD
-import HTML
+import HTML.Base
 import List         (transpose)
 import WUI
 
@@ -73,4 +73,4 @@ formExample =
            , [0,0,1,0,0,6,0,0,9] ]
 
 -- Generate cgi program with:
--- cpm exec curry makecgi -m formExample -o ~/public_html/sudoku.cgi sudoku
+-- curry makecgi -cpm -m formExample -o ~/public_html/sudoku.cgi sudoku
