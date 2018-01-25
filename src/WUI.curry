@@ -7,7 +7,7 @@
 --- [this web page](http://www.informatik.uni-kiel.de/~pakcs/WUI).
 ---
 --- @author Michael Hanus
---- @version May 2014
+--- @version January 2018
 --- @category web
 ------------------------------------------------------------------------------
 
@@ -22,12 +22,12 @@ module WUI(--WuiState,cgiRef2state,state2cgiRef,value2state,state2value,
            wSelect,wSelectInt,wSelectBool,wRadioSelect,wRadioBool,wCheckBool,
            wMultiCheckSelect,
            wPair,wTriple,w4Tuple,w5Tuple,w6Tuple,w7Tuple,w8Tuple,
-           w9Tuple,w10Tuple,w11Tuple,w12Tuple,
+           w9Tuple,w10Tuple,w11Tuple,w12Tuple,w13Tuple,w14Tuple,
 
            -- these parameterized constructor combinators cause
            -- non-determinism in KiCS2:
            wCons2,wCons3,wCons4,wCons5,wCons6,wCons7,wCons8,
-           wCons9,wCons10,wCons11,wCons12,
+           wCons9,wCons10,wCons11,wCons12,wCons13,wCons14,
 
            wJoinTuple,wMaybe,wCheckMaybe,wRadioMaybe,
            wList,wListWithHeadings,wHList,wMatrix,wEither,
@@ -672,17 +672,20 @@ w11Tuple wa wb wc wd we wf wg wh wi wj wk =
 --- WUI combinator for constructors of arity 11.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons11  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k) => (a->b->c->d->e->f->g->h->i->j->k->l) ->
-            WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
-            WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
-            WuiSpec k -> WuiSpec l
+wCons11 :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k) =>
+           (a->b->c->d->e->f->g->h->i->j->k->l) ->
+           WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+           WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
+           WuiSpec k -> WuiSpec l
 wCons11 cons wa wb wc wd we wf wg wh wi wj wk =
   adaptWSpec (\ ((a,b,c,d,e),(f,g,h,i,j,k)) -> cons a b c d e f g h i j k)
              (wJoinTuple (w5Tuple wa wb wc wd we) (w6Tuple wf wg wh wi wj wk))
 
 
 --- WUI combinator for tuples of arity 12.
-w12Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k, Eq l) => WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+w12Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h,
+             Eq i, Eq j, Eq k, Eq l) =>
+            WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
             WuiSpec k -> WuiSpec l -> WuiSpec (a,b,c,d,e,f,g,h,i,j,k,l)
 --w12Tuple = wCons12 (\a b c d e f g h i j k l -> (a,b,c,d,e,f,g,h,i,j,k,l))
@@ -694,13 +697,71 @@ w12Tuple wa wb wc wd we wf wg wh wi wj wk wl =
 --- WUI combinator for constructors of arity 12.
 --- The first argument is the ternary constructor.
 --- The further arguments are the WUI specifications for the argument types.
-wCons12  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h, Eq i, Eq j, Eq k, Eq l) => (a->b->c->d->e->f->g->h->i->j->k->l->m) ->
+wCons12  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h,
+             Eq i, Eq j, Eq k, Eq l) =>
+            (a->b->c->d->e->f->g->h->i->j->k->l->m) ->
             WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
             WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
             WuiSpec k -> WuiSpec l -> WuiSpec m
 wCons12 cons wa wb wc wd we wf wg wh wi wj wk wl =
   adaptWSpec (\ ((a,b,c,d,e,f),(g,h,i,j,k,l)) -> cons a b c d e f g h i j k l)
        (wJoinTuple (w6Tuple wa wb wc wd we wf) (w6Tuple wg wh wi wj wk wl))
+
+--- WUI combinator for tuples of arity 13.
+w13Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h,
+             Eq i, Eq j, Eq k, Eq l, Eq m) =>
+            WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+            WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
+            WuiSpec k -> WuiSpec l -> WuiSpec m ->
+            WuiSpec (a,b,c,d,e,f,g,h,i,j,k,l,m)
+--w13Tuple = wCons13 (\a b c d e f g h i j k l m -> (a,b,c,d,e,f,g,h,i,j,k,l,m))
+w13Tuple wa wb wc wd we wf wg wh wi wj wk wl wm =
+  transformWSpec
+    (\ ((a,b,c,d,e,f),(g,h,i,j,k,l,m)) -> (a,b,c,d,e,f,g,h,i,j,k,l,m),
+     \ (a,b,c,d,e,f,g,h,i,j,k,l,m) -> ((a,b,c,d,e,f),(g,h,i,j,k,l,m)))
+    (wJoinTuple (w6Tuple wa wb wc wd we wf) (w7Tuple wg wh wi wj wk wl wm))
+
+--- WUI combinator for constructors of arity 13.
+--- The first argument is the ternary constructor.
+--- The further arguments are the WUI specifications for the argument types.
+wCons13  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h,
+             Eq i, Eq j, Eq k, Eq l, Eq m) =>
+            (a->b->c->d->e->f->g->h->i->j->k->l->m->n) ->
+            WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+            WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
+            WuiSpec k -> WuiSpec l -> WuiSpec m -> WuiSpec n
+wCons13 cons wa wb wc wd we wf wg wh wi wj wk wl wm =
+  adaptWSpec
+    (\ ((a,b,c,d,e,f),(g,h,i,j,k,l,m)) -> cons a b c d e f g h i j k l m)
+    (wJoinTuple (w6Tuple wa wb wc wd we wf) (w7Tuple wg wh wi wj wk wl wm))
+
+--- WUI combinator for tuples of arity 14.
+w14Tuple :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h,
+             Eq i, Eq j, Eq k, Eq l, Eq m, Eq n) =>
+            WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+            WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
+            WuiSpec k -> WuiSpec l -> WuiSpec m -> WuiSpec n ->
+            WuiSpec (a,b,c,d,e,f,g,h,i,j,k,l,m,n)
+--w14Tuple = wCons14 (\a b c d e f g h i j k l m n -> (a,b,c,d,e,f,g,h,i,j,k,l,m,n))
+w14Tuple wa wb wc wd we wf wg wh wi wj wk wl wm wn =
+  transformWSpec
+    (\ ((a,b,c,d,e,f,g),(h,i,j,k,l,m,n)) -> (a,b,c,d,e,f,g,h,i,j,k,l,m,n),
+     \ (a,b,c,d,e,f,g,h,i,j,k,l,m,n) -> ((a,b,c,d,e,f,g),(h,i,j,k,l,m,n)))
+    (wJoinTuple (w7Tuple wa wb wc wd we wf wg) (w7Tuple wh wi wj wk wl wm wn))
+
+--- WUI combinator for constructors of arity 14.
+--- The first argument is the ternary constructor.
+--- The further arguments are the WUI specifications for the argument types.
+wCons14  :: (Eq a, Eq b, Eq c, Eq d, Eq e, Eq f, Eq g, Eq h,
+             Eq i, Eq j, Eq k, Eq l, Eq m, Eq n) =>
+            (a->b->c->d->e->f->g->h->i->j->k->l->m->n->o) ->
+            WuiSpec a -> WuiSpec b -> WuiSpec c -> WuiSpec d -> WuiSpec e ->
+            WuiSpec f -> WuiSpec g -> WuiSpec h -> WuiSpec i -> WuiSpec j ->
+            WuiSpec k -> WuiSpec l -> WuiSpec m -> WuiSpec n -> WuiSpec o
+wCons14 cons wa wb wc wd we wf wg wh wi wj wk wl wm wn =
+  adaptWSpec
+    (\ ((a,b,c,d,e,f,g),(h,i,j,k,l,m,n)) -> cons a b c d e f g h i j k l m n)
+    (wJoinTuple (w7Tuple wa wb wc wd we wf wg) (w7Tuple wh wi wj wk wl wm wn))
 
 
 --- WUI combinator to combine two tuples into a joint tuple.
