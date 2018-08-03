@@ -41,14 +41,13 @@ module WUIjs(--WuiState,cgiRef2state,state2cgiRef,value2state,state2value,
            )
  where
 
-import Char(isDigit,isSpace)
-import FunctionInversion (invf1)
-import HTML.Base
-import List(elemIndex,intersperse)
-import Maybe
-import Read(readNat)
+import Data.Char(isDigit,isSpace)
+import Data.Function.Inversion (invf1)
+import Data.List(elemIndex,intersperse)
+import Data.Maybe
 import ReadShowTerm
 
+import HTML.Base
 import JavaScript.Types
 import JavaScript.Show
 
@@ -432,7 +431,7 @@ wSelect showelem selset =
           (\ (render,errmsg,_,jsck) v -> selWidget errmsg jsck render v)
           (\wparams env s ->
              checkLegalInput wparams selWidget False
-                             (selset !! readNat (env (state2cgiRef s))))
+                             (selset !! read (env (state2cgiRef s))))
  where
   selWidget _ _ render v =
      (render [maybe (selection ref namevalues)
@@ -461,7 +460,7 @@ wSelectJS showelem showjselem selset =
           (\ (render,errmsg,_,jsck) v -> selWidget errmsg jsck render v)
           (\wparams env s ->
              checkLegalInput wparams selWidget False
-                             (selset !! readNat (env (state2cgiRef s))))
+                             (selset !! read (env (state2cgiRef s))))
  where
   selWidget errmsg mbjs render v =
      (addErrMsg (isJust jsCheckCall) True False errmsg refname
@@ -561,7 +560,7 @@ wRadioSelect showelem selset =
           (\ (render,errmsg,_,jsck) v -> radioWidget errmsg jsck render v)
           (\wparams env s ->
              checkLegalInput wparams radioWidget True
-                             (selset !! readNat (env (state2cgiRef s))))
+                             (selset !! read (env (state2cgiRef s))))
  where
   radioWidget _ _ render v = -- TODO: add JavaScript code
      (render (map showItem numhitems),
@@ -662,7 +661,7 @@ checkAndJoinSubFields wparams subfields jscons errorinsubfields joinvalue =
    in if errorinsubfields
       then (Nothing, combine True)
       else if (conditionOf wparams) joinvalue
-           then (Just joinvalue, combine True) 
+           then (Just joinvalue, combine True)
            else (Nothing,        combine False)
 
 -- Generate a single structure that is a given alternative of an input field
@@ -1490,7 +1489,7 @@ isRowWithSingleTableData row = case row of
    _ -> False
 
 mergeRowWithSingleTableData :: HtmlExp -> HtmlExp
-mergeRowWithSingleTableData 
+mergeRowWithSingleTableData
   (HtmlStruct "tr" [] [HtmlStruct "td" [] [HtmlStruct "table" _ [row]]]) = row
 
 

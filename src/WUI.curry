@@ -37,12 +37,11 @@ module WUI(--WuiState,cgiRef2state,state2cgiRef,value2state,state2value,
            mainWUI,wui2html,wuiInForm,wuiWithErrorForm)
  where
 
-import Char(isDigit,isSpace)
-import FunctionInversion (invf1)
+import Data.Char(isDigit,isSpace)
+import Data.Function.Inversion (invf1)
+import Data.List(elemIndex)
+import Data.Maybe
 import HTML.Base
-import List(elemIndex)
-import Maybe
-import Read(readNat)
 import ReadShowTerm
 
 infixl 0 `withRendering`
@@ -307,7 +306,7 @@ wSelect showelem selset =
           (\wparams v -> selWidget (renderOf wparams) v)
           (\wparams env s ->
              checkLegalInput wparams selWidget
-                             (selset !! readNat (env (state2cgiRef s))))
+                             (selset !! read (env (state2cgiRef s))))
  where
   selWidget render v =
     let ref free
@@ -383,7 +382,7 @@ wRadioSelect showelem selset =
           (\wparams v -> radioWidget (renderOf wparams) v)
           (\wparams env s ->
              checkLegalInput wparams radioWidget
-                             (selset !! readNat (env (state2cgiRef s))))
+                             (selset !! read (env (state2cgiRef s))))
  where
   radioWidget render v =
     let ref free
@@ -1011,7 +1010,7 @@ renderList hexps = mergeTableOfTable (table (map (\h->[[h]]) hexps))
 -- yellow.
 renderError :: Rendering -> String -> Rendering
 renderError render errmsg hexps =
-  table [[[boldRedTxt errmsg]], [[render hexps]]] 
+  table [[[boldRedTxt errmsg]], [[render hexps]]]
                   `addAttr` ("bgcolor","#ffff00") -- background color: yellow
 
 boldRedTxt :: String -> HtmlExp
@@ -1033,7 +1032,7 @@ isRowWithSingleTableData row = case row of
    _ -> False
 
 mergeRowWithSingleTableData :: HtmlExp -> HtmlExp
-mergeRowWithSingleTableData 
+mergeRowWithSingleTableData
   (HtmlStruct "tr" [] [HtmlStruct "td" [] [HtmlStruct "table" _ [row]]]) = row
 
 

@@ -10,7 +10,7 @@
 import AllSolutions (getOneSolution)
 import CLPFD
 import HTML.Base
-import List         (transpose)
+import Data.List         (transpose)
 import WUI
 
 -----------------------------------------------------------------------------
@@ -28,7 +28,7 @@ sudoku m =
   squares :: Eq a => [[a]] -> [[a]]
   squares [] = []
   squares (l1:l2:l3:ls) = group3Rows [l1,l2,l3] ++ squares ls
-  
+
   group3Rows l123 = if head l123 == [] then [] else
    concatMap (take 3) l123 : group3Rows (map (drop 3) l123)
 

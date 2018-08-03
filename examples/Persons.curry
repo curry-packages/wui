@@ -7,7 +7,7 @@
 --
 -- The background about this example and the Curry->JavaScript translator
 -- are described in:
--- 
+--
 -- M. Hanus:
 -- Putting Declarative Programming into the Web: Translating Curry to JavaScript
 -- Proceedings of the 9th ACM SIGPLAN International Conference on
@@ -18,7 +18,7 @@ module Persons where
 
 import HTML.Base
 import WUIjs
-import Time(validDate)
+import Data.Time(validDate)
 
 -- a form that just shows its argument:
 resultForm :: Show a => a -> IO HtmlForm
