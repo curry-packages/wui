@@ -6,7 +6,8 @@
     "category": [ "User Interface", "Web" ],
     "dependencies": {
         "html"      : ">= 3.0.0",
-        "javascript": ">= 3.0.0"
+        "javascript": ">= 3.0.0",
+        "base"      : ">= 2.0.0"
     },
     "exportedModules": [ "WUI", "WUIjs" ],
     "compilerCompatibility": {
