@@ -5,6 +5,7 @@
     "synopsis": "Libraries to support the type-oriented construction of web user interfaces",
     "category": [ "User Interface", "Web" ],
     "dependencies": {
+        "base"      : ">= 1.0.0, < 2.0.0",
         "html"      : ">= 2.0.0",
         "javascript": ">= 2.0.0"
     },

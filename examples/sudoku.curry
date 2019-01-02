@@ -4,14 +4,15 @@
 --- Note that this example requires the CLPFD solver provided with PAKCS.
 ---
 --- @author Michael Hanus
---- @version May 2017
+--- @version January 2019
 -----------------------------------------------------------------------------
 
-import AllSolutions (getOneSolution)
 import CLPFD
 import HTML.Base
-import List         (transpose)
+import List         ( transpose )
 import WUI
+
+import Control.AllSolutions ( getOneSolution ) -- requires package `searchtree`
 
 -----------------------------------------------------------------------------
 -- Solving a Su Doku puzzle represented as a matrix of numbers (possibly free
