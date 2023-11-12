@@ -27,7 +27,7 @@
         }
     ],
     "source": {
-        "git": "https://git.ps.informatik.uni-kiel.de/curry-packages/wui.git",
+        "git": "https://github.com/curry-packages/wui.git",
         "tag": "$version"
     }
 }
